@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 #include "src/getopt.h"
 #include "wstringtool.h"
 #include "src/work.h"
@@ -11,7 +12,7 @@ int error(string msg)
 }
 int main(int argc, char* argv[])
 {
-    string targetFile;
+    vector<string> files;
     char par[] = "-cwlsax";
     while(true)
     {
@@ -25,20 +26,22 @@ int main(int argc, char* argv[])
             break;
         case 'l':Work::calcLine = true;
             break;
-        case 's':Work::recursive = true;
-            break;
+//        case 's':Work::recursive = true;
+//            break;
         case 'a':Work::detail = true;
             break;
         case 1:
-            targetFile = optarg;
+            files.push_back(optarg);
         default:
             break;
         }
     }
-    if(targetFile.empty())
+    if(files.empty())
         error("filename's parameter is not accepted!");
 
     Work tes;
-    tes.readFile(targetFile);
+    tes.readFile(files[0]);
+    tes.parse();
+    tes.output();
     return 0;
 }
