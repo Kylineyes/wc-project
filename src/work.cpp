@@ -16,15 +16,15 @@ Work::~Work()
     delete res;
 }
 
-void Work::output()
-{
-    cout << "charNum: " << charNum << endl;
-    cout << "wordNum: " << wordNum << endl;
-    cout << "lineNum: " << lineNum << endl;
-    cout << "blankLineNum: " << blankLineNum << endl;
-    cout << "codeLineNum: " << codeLineNum << endl;
-    cout << "annotationLineNum: " << annotationLineNum << endl;
-}
+//void Work::output()
+//{
+//    cout << "charNum: " << charNum << endl;
+//    cout << "wordNum: " << wordNum << endl;
+//    cout << "lineNum: " << lineNum << endl;
+//    cout << "blankLineNum: " << blankLineNum << endl;
+//    cout << "codeLineNum: " << codeLineNum << endl;
+//    cout << "annotationLineNum: " << annotationLineNum << endl;
+//}
 
 
 bool Work::readFile(string fileName)
@@ -42,10 +42,26 @@ bool Work::readFile(string fileName)
     return true;
 }
 
-string Work::parse()
+void Work::formatOutput()
 {
-    //isUTF8 = true;
-    //cout << isUTF8 << endl;
+    if(Work::calcChar) {
+        wcout << "The number of char is " << charNum << endl;
+    }
+    if(Work::calcWord) {
+        wcout << "The number of word is " << wordNum << endl;
+    }
+    if(Work::calcLine) {
+        wcout << "The number of line is " << lineNum << endl;
+    }
+    if(Work::detail) {
+        wcout << "The number of blank-line is " << blankLineNum << endl;
+        wcout << "The number of code-line is " << codeLineNum << endl;
+        wcout << "The number of annotation-line is " << annotationLineNum << endl;
+    }
+}
+
+void Work::parse()
+{
     wstring content = (isUTF8)
             ? WStringTool::UTF8ToUnicode(res + 3) // remove BOM
             : WStringTool::GbkToUnicode(res);
@@ -56,8 +72,6 @@ string Work::parse()
     bool hasShowDoubleQuotaion = false;
     bool preIsSlash = false;
     bool isInSingleAnnotation = false;
-    bool isInMultiAnnotation = false;
-    bool preIsStar = false;
     bool checkAlpha = false;
     auto iter = content.begin();
     while(iter != content.end())
@@ -66,7 +80,6 @@ string Work::parse()
             ++iter;
             continue;
         }
-        cout << "~" << *iter << "|" << (char)*iter << "~" << endl;
         ++charNum; // always
         if(*iter == '\n') {
 
@@ -76,13 +89,10 @@ string Work::parse()
                 ++wordNum;
             }
 
-            if(isInMultiAnnotation) {
-                ++annotationLineNum;
-            } else if(!hasShowCodeChar && isInSingleAnnotation) {
+            if(!hasShowCodeChar && isInSingleAnnotation) {
                 ++annotationLineNum;
             } else if(!hasShowVisualChar) {
                 ++blankLineNum;
-                cout << "wtf" << endl;
             } else {
                 ++codeLineNum;
             }
@@ -94,23 +104,16 @@ string Work::parse()
             hasShowDoubleQuotaion = false;
             preIsSlash = false;
             isInSingleAnnotation = false;
-            //isInMultiAnnotation
-            preIsStar = false;
             checkAlpha = false;
 
         } else if(isAlpha(*iter) || isDigit(*iter) || *iter == '_') {
 
-            if(!isInMultiAnnotation && !isInSingleAnnotation) {
+            if(!isInSingleAnnotation) {
                 hasShowVisualChar = true;
                 hasShowCodeChar = true;
             }
             preIsSpaceChar = false;
-            //hasShowSingleQuotaion = false;
-            //hasShowDoubleQuotaion = false;
             preIsSlash = false;
-            //isInSingleAnnotation = false;
-            //isInMultiAnnotation
-            preIsStar = false;
             checkAlpha = true;
 
         } else if(isSpace(*iter)) {
@@ -121,75 +124,56 @@ string Work::parse()
 
             preIsSpaceChar = true;
             preIsSlash = false;
-            //isInSingleAnnotation = false;
-            //isInMultiAnnotation
-            preIsStar = false;
             checkAlpha = false;
 
         } else if(*iter == '/') {
             if(checkAlpha) {
                 ++wordNum;
             }
-            if(!isInSingleAnnotation) {
-                if(preIsSlash) {
+            if(!isInSingleAnnotation && preIsSlash) {
                     isInSingleAnnotation = true;
-                } else if(preIsStar && isInMultiAnnotation) {
-                    isInMultiAnnotation = false;
-                    ++annotationLineNum;
-                } else {
-                    hasShowVisualChar = true;
-                }
             }
 
-
             preIsSpaceChar = false;
-            preIsStar = false;
             preIsSlash = true;
             checkAlpha = false;
 
-        } else if(*iter == '*') {
+        }else if(isSymbol(*iter)) {
             if(checkAlpha) {
                 ++wordNum;
             }
-
             if(!isInSingleAnnotation) {
-                if(preIsSlash) {
-                    isInMultiAnnotation = true;
-                }
-            }
-
-            preIsSpaceChar = false;
-            preIsSlash = false;
-            preIsStar = true;
-            checkAlpha = false;
-
-        } else if(isSymbol(*iter)) {
-            if(checkAlpha) {
-                ++wordNum;
-            }
-            if(!isInMultiAnnotation && !isInSingleAnnotation) {
                 hasShowVisualChar = true;
             }
             preIsSpaceChar = false;
             preIsSlash = false;
-            preIsStar = false;
             checkAlpha = false;
 
         } else {
             ++wordNum;
-            cout << "!" << *iter << "!";
 
             preIsSpaceChar = false;
             preIsSlash = false;
-            preIsStar = false;
             checkAlpha = false;
         }
 
         ++iter;
     }
 
+    ++lineNum;
 
-    return "done";
+    if(checkAlpha) {
+        ++wordNum;
+    }
+
+    if(!hasShowCodeChar && isInSingleAnnotation) {
+        ++annotationLineNum;
+    } else if(!hasShowVisualChar) {
+        ++blankLineNum;
+    } else {
+        ++codeLineNum;
+    }
+
 }
 
 bool Work::isAlpha(wchar_t wc)

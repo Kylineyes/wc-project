@@ -42,6 +42,6 @@ int main(int argc, char* argv[])
     Work tes;
     tes.readFile(files[0]);
     tes.parse();
-    tes.output();
+    tes.formatOutput();
     return 0;
 }

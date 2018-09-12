@@ -16,15 +16,12 @@ class Work
 public:
     Work();
     ~Work();
-    friend ostream& operator << (ostream& out, const Work& o)
-    {
-        return out;
-    }
 
-    void output();
+    //void output();
 
     bool readFile(string fileName);
-    string parse();
+    void parse();
+    void formatOutput();
 
     static bool isUTF8;
     static bool calcChar;
