@@ -66,11 +66,6 @@ void traverseSubFolder(string& para, vector<wstring>& target)
     delete[] thisPath;
 }
 
-int error(string msg)
-{
-    cout << msg << endl;
-    exit(1);
-}
 int main(int argc, char* argv[])
 {
 

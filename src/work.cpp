@@ -64,6 +64,8 @@ void Work::parse()
     bool isInSingleAnnotation = false;
     bool checkAlpha = false;
     auto iter = content.begin();
+    if(iter == content.end())
+        return;
     while(iter != content.end())
     {
         if(*iter == '\r') { // remove '\r'
