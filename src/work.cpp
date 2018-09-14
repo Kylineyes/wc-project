@@ -2,13 +2,7 @@
 
 Work::Work()
 {
-    charNum = 0;
-    wordNum = 0;
-    lineNum = 0;
-    blankLineNum = 0;
-    codeLineNum = 0;
-    annotationLineNum = 0;
-    res = nullptr;
+    init();
 }
 
 Work::~Work()
@@ -16,18 +10,8 @@ Work::~Work()
     delete res;
 }
 
-//void Work::output()
-//{
-//    cout << "charNum: " << charNum << endl;
-//    cout << "wordNum: " << wordNum << endl;
-//    cout << "lineNum: " << lineNum << endl;
-//    cout << "blankLineNum: " << blankLineNum << endl;
-//    cout << "codeLineNum: " << codeLineNum << endl;
-//    cout << "annotationLineNum: " << annotationLineNum << endl;
-//}
 
-
-bool Work::readFile(string fileName)
+bool Work::readFile(const wchar_t* fileName)
 {
     ifstream fin;
     fin.open(fileName, ios::binary);
@@ -36,14 +20,20 @@ bool Work::readFile(string fileName)
     fin.seekg(0, ios::end);
     int len = static_cast<int>(fin.tellg()) + 1;
     fin.seekg(0, ios::beg);
+
+    delete res;
+    init();
     res = new char[len];
     fin.read(res, len);
     res[len-1] = '\0'; // before is 0xCD
+
+    this->fileName = wstring(fileName);
     return true;
 }
 
 void Work::formatOutput()
 {
+    wcout << fileName << endl;
     if(Work::calcChar) {
         wcout << "The number of char is " << charNum << endl;
     }
@@ -212,6 +202,17 @@ bool Work::isSymbol(wchar_t wc)
         return true;
     }
     return false;
+}
+
+void Work::init()
+{
+    charNum = 0;
+    wordNum = 0;
+    lineNum = 0;
+    blankLineNum = 0;
+    codeLineNum = 0;
+    annotationLineNum = 0;
+    res = nullptr;
 }
 
 

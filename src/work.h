@@ -4,22 +4,19 @@
 #include <fstream>
 #include <string>
 #include "wstringtool.h"
-//using namespace std;
-//using std::string = string;
 using ostream = std::ostream;
 using string = std::string;
 using wstring = std::wstring;
 using ifstream = std::ifstream;
 using ios = std::ios;
+
 class Work
 {
 public:
     Work();
     ~Work();
 
-    //void output();
-
-    bool readFile(string fileName);
+    bool readFile(const wchar_t* fileName);
     void parse();
     void formatOutput();
 
@@ -35,6 +32,8 @@ private:
     bool isDigit(wchar_t wc);
     bool isSpace(wchar_t wc);
     bool isSymbol(wchar_t wc);
+    void init();
+    wstring fileName;
     char *res;
     int charNum;
     int wordNum;
